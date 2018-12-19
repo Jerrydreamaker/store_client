@@ -1,0 +1,7 @@
+#zmq thread count
+zmq_thread_count=1
+#zmq_sub_server_ip
+#zmq_sub_server_ip=zmqserver
+#zmq_sub_server_port
+#zmq_sub_server_port=16018
+zmq_pub_server_port=16019

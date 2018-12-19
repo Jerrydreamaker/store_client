@@ -1,0 +1,83 @@
+package cn.iecas.store.zmq.client;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.zeromq.ZMQ;
+
+import cn.iecas.general.utils.prop.PropsUtils;
+/**
+ * zmq  发布数据
+ * 
+ * 
+ * @author hhm
+ * 
+ */
+public class ZmqPubClient {
+
+	private static final Logger logger = LoggerFactory.getLogger(ZmqPubClient.class);
+
+	/**
+	 * zmq 启动线程数
+	 */
+	private static int zmqThreadCount = PropsUtils.getInt("zmq", "zmq_thread_count", 1);
+	/**
+	 * zmq 数据广播端口
+	 */
+	private static int zmqSendPort = PropsUtils.getInt("zmq", "zmq_pub_server_port", 0);
+
+	private static ZMQ.Context context = null;
+	private static ZMQ.Socket pubSock = null;
+	
+	/**
+	 * 初始化zmq对象
+	 */
+	private static void initZMQ() {
+		if(context==null){
+			context = ZMQ.context(zmqThreadCount);
+		}
+		if (zmqSendPort != 0) {
+			pubSock = context.socket(ZMQ.PUB);
+			String bindUri = "tcp://*:" + zmqSendPort;
+			pubSock.bind(bindUri);
+			logger.info("Init ZMQ Send Socket : [ZMQ Thread Count:" + zmqThreadCount + ",Bind URI:" + bindUri + "]");
+		}else{
+			String msg = "\"zmq_pub_server_port\" property is null! Set in file \"zmq.properties\"";
+			logger.error(msg);
+			throw new RuntimeException(msg);
+		}
+	}
+	
+	private static ZMQ.Socket getPubSock(){
+		if(pubSock==null){
+			initZMQ();
+		}
+		
+		return pubSock;
+	}
+	private static ZMQ.Socket getPubSock(int port){
+		if(context==null){
+			context = ZMQ.context(zmqThreadCount);
+		}
+		ZMQ.Socket sock = context.socket(ZMQ.PUB);
+		String bindUri = "tcp://*:" + port;
+		sock.bind(bindUri);
+		
+		return sock;
+	}
+	
+	
+	public static void sendData(String msg){
+		getPubSock().send(msg);
+	}
+	
+	public static void sendData(byte[] msg){
+		getPubSock().send(msg);
+	}
+	
+
+	public static void sendData(int port, String msg){
+		ZMQ.Socket sock = getPubSock(port);
+		sock.send(msg);
+		sock.close();
+	}
+}

@@ -1,0 +1,2 @@
+zmq_thread_count=1
+zmq_pub_server_port=16017
