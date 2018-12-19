@@ -13,3 +13,8 @@
 ## store.mongo.client
 ## store.redis.client
 ## store.zmq.client
+## 特征
+* 模块间互相独立
+* 预留接口，具备扩展性。
+
+
